@@ -1319,4 +1319,60 @@ public class VCardExporterTests extends VCardTestsBase {
         mVerifier.addPropertyNodesVerifierElemWithEmptyName()
                 .addExpectedNode("TEL", "sip:android@example.com");
     }
+
+    public void testRefrainFlags() {
+        int vCardType = V30;
+        vCardType |= VCardConfig.FLAG_REFRAIN_ADDRESS_EXPORT |
+                VCardConfig.FLAG_REFRAIN_EMAIL_EXPORT |
+                VCardConfig.FLAG_REFRAIN_EMAIL_EXPORT |
+                VCardConfig.FLAG_REFRAIN_ORGANIZATION_EXPORT |
+                VCardConfig.FLAG_REFRAIN_WEBSITES_EXPORT |
+                VCardConfig.FLAG_REFRAIN_NOTES_EXPORT |
+                VCardConfig.FLAG_REFRAIN_NICKNAME_EXPORT |
+                VCardConfig.FLAG_REFRAIN_EVENTS_EXPORT |
+                VCardConfig.FLAG_REFRAIN_IMAGE_EXPORT;
+
+        mVerifier.initForExportTest(vCardType);
+
+        final ContactEntry entry = mVerifier.addInputEntry();
+        entry.addContentValues(StructuredName.CONTENT_ITEM_TYPE)
+                .put(StructuredName.DISPLAY_NAME, StructuredName.CONTENT_ITEM_TYPE);
+        entry.addContentValues(StructuredPostal.CONTENT_ITEM_TYPE)
+                .put(StructuredPostal.FORMATTED_ADDRESS, StructuredPostal.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Email.CONTENT_ITEM_TYPE)
+                .put(Email.ADDRESS, Email.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Organization.CONTENT_ITEM_TYPE)
+                .put(Organization.COMPANY, Organization.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Website.CONTENT_ITEM_TYPE)
+                .put(Website.URL, Website.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Note.CONTENT_ITEM_TYPE)
+                .put(Note.NOTE, Note.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Nickname.CONTENT_ITEM_TYPE)
+                .put(Nickname.NAME, Nickname.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Event.CONTENT_ITEM_TYPE)
+                .put(Event.START_DATE, Event.CONTENT_ITEM_TYPE);
+        entry.addContentValues(Photo.CONTENT_ITEM_TYPE)
+                .put(Photo.PHOTO_FILE_ID, Photo.CONTENT_ITEM_TYPE);
+
+        final String vcard = mVerifier.buildVCardForExportTest();
+
+        assertFalse("Address should not be present.",
+                vcard.contains(StructuredPostal.CONTENT_ITEM_TYPE));
+        assertFalse("Email should not be present.",
+                vcard.contains(Email.CONTENT_ITEM_TYPE));
+        assertFalse("Organization should not be present.",
+                vcard.contains(Organization.CONTENT_ITEM_TYPE));
+        assertFalse("Website should not be present.",
+                vcard.contains(Website.CONTENT_ITEM_TYPE));
+        assertFalse("Note should not be present.",
+                vcard.contains(Note.CONTENT_ITEM_TYPE));
+        assertFalse("Nickname should not be present.",
+                vcard.contains(Nickname.CONTENT_ITEM_TYPE));
+        assertFalse("Event should not be present.",
+                vcard.contains(Event.CONTENT_ITEM_TYPE));
+        assertFalse("Photo should not be present.",
+                vcard.contains(Photo.CONTENT_ITEM_TYPE));
+        assertTrue("Name should be present. ",
+                vcard.contains(StructuredName.CONTENT_ITEM_TYPE));
+    }
 }
