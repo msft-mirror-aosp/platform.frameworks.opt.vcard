@@ -17,6 +17,7 @@
 package com.android.vcard.tests;
 
 import com.android.vcard.VCardConfig;
+import com.android.vcard.VCardConstants;
 import com.android.vcard.tests.testutils.ContactEntry;
 import com.android.vcard.tests.testutils.PropertyNodesVerifierElem;
 import com.android.vcard.tests.testutils.PropertyNodesVerifierElem.TypeSet;
@@ -883,6 +884,45 @@ public class VCardExporterTests extends VCardTestsBase {
 
     public void testPostalWithBothStructuredAndFormattedV40() {
         testPostalWithBothStructuredAndFormattedCommon(V40);
+    }
+
+    private void testPostalAddressTypeHandlingCommon(int vcardType) {
+        mVerifier.initForExportTest(vcardType);
+
+        ContactEntry entry = mVerifier.addInputEntry();
+        entry.addContentValues(StructuredPostal.CONTENT_ITEM_TYPE)
+                .put(StructuredPostal.STREET, "1010 Technology Pkwy")
+                .put(StructuredPostal.TYPE, StructuredPostal.TYPE_WORK);
+        entry.addContentValues(StructuredPostal.CONTENT_ITEM_TYPE)
+                .put(StructuredPostal.STREET, "123 Main St")
+                .put(StructuredPostal.TYPE, StructuredPostal.TYPE_OTHER);
+        entry.addContentValues(StructuredPostal.CONTENT_ITEM_TYPE)
+                .put(StructuredPostal.STREET, "112358 Academic Lane")
+                .put(StructuredPostal.TYPE, StructuredPostal.TYPE_CUSTOM)
+                .put(StructuredPostal.LABEL, "School");
+
+        PropertyNodesVerifierElem elem = mVerifier.addPropertyNodesVerifierElemWithEmptyName();
+        elem.addExpectedNode("ADR",
+                Arrays.asList("", "", "1010 Technology Pkwy", "", "", "", ""),
+                new TypeSet(VCardConstants.PARAM_TYPE_WORK));
+        elem.addExpectedNode("ADR",
+                Arrays.asList("", "", "123 Main St", "", "", "", ""),
+                new TypeSet("X-" + VCardConstants.PARAM_ADR_EXTRA_TYPE_OTHER));
+        elem.addExpectedNode("ADR",
+                Arrays.asList("", "", "112358 Academic Lane", "", "", "", ""),
+                new TypeSet("X-School"));
+    }
+
+    public void testPostalAddressTypeHandlingV21() {
+        testPostalAddressTypeHandlingCommon(V21);
+    }
+
+    public void testPostalAddressTypeHandlingV30() {
+        testPostalAddressTypeHandlingCommon(V30);
+    }
+
+    public void testPostalAddressTypeHandlingV40() {
+        testPostalAddressTypeHandlingCommon(V40);
     }
 
     private void testOrganizationCommon(int vcardType) {
