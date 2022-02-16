@@ -23,7 +23,6 @@ import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 
 import com.android.vcard.VCardConfig;
-import com.android.vcard.VCardConstants;
 import com.android.vcard.tests.testutils.ContactEntry;
 import com.android.vcard.tests.testutils.ContentValuesBuilder;
 import com.android.vcard.tests.testutils.PropertyNodesVerifierElem;
@@ -326,9 +325,7 @@ public class VCardJapanizationTests extends VCardTestsBase {
                 .addExpectedNode("X-REDUCTION", "")
                 .addExpectedNode("X-NO", "")
                 .addExpectedNode("X-DCM-HMN-MODE", "")
-                .addExpectedNode("ADR",
-                        Arrays.asList("2", "", "", "", "", "", ""),
-                        new TypeSet("X-" + VCardConstants.PARAM_ADR_EXTRA_TYPE_OTHER));
+                .addExpectedNode("ADR", Arrays.asList("2", "", "", "", "", "", ""));
     }
 
     /**
