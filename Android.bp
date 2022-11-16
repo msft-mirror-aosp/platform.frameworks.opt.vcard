@@ -27,4 +27,8 @@ java_library {
         "//apex_available:platform",
         "com.android.bluetooth",
     ],
+
+    libs: [
+        "framework-annotations-lib",
+    ]
 }
