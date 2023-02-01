@@ -23,4 +23,12 @@ java_library {
     sdk_version: "9",
 
     srcs: ["java/**/*.java"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+
+    libs: [
+        "framework-annotations-lib",
+    ]
 }
