@@ -429,6 +429,7 @@ public class VCardComposer {
                 Log.d(LOG_TAG,
                     String.format("mCursor has an error (getCount: %d): ", mCursor.getCount()));
             }
+            mErrorReason = FAILURE_REASON_NO_ENTRY;
             closeCursorIfAppropriate();
             return false;
         }
