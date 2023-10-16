@@ -34,7 +34,7 @@ android_test {
         "androidx.test.ext.truth",
         "androidx.test.rules",
         "mockito-target",
-        "truth-prebuilt",
+        "truth",
     ],
 
     jacoco: {
