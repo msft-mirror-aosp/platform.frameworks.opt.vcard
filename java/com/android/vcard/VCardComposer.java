@@ -469,7 +469,7 @@ public class VCardComposer {
         final String vcard = createOneEntryInternal(mCursor.getLong(mIdColumn),
                 getEntityIteratorMethod);
         if (!mCursor.moveToNext()) {
-            Log.e(LOG_TAG, "Cursor#moveToNext() returned false");
+            Log.i(LOG_TAG, "Cursor#moveToNext() returned false");
         }
         return vcard;
     }
