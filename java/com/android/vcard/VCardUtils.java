@@ -253,8 +253,8 @@ public class VCardUtils {
             if (hasPref) {
                 type = Phone.TYPE_MAIN;
             } else {
-                // default to TYPE_HOME
-                type = Phone.TYPE_HOME;
+                // default to TYPE_OTHER
+                type = Phone.TYPE_OTHER;
             }
         }
         if (isFax) {
