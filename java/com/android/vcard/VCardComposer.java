@@ -429,6 +429,7 @@ public class VCardComposer {
                 Log.d(LOG_TAG,
                     String.format("mCursor has an error (getCount: %d): ", mCursor.getCount()));
             }
+            mErrorReason = FAILURE_REASON_NO_ENTRY;
             closeCursorIfAppropriate();
             return false;
         }
@@ -468,7 +469,7 @@ public class VCardComposer {
         final String vcard = createOneEntryInternal(mCursor.getLong(mIdColumn),
                 getEntityIteratorMethod);
         if (!mCursor.moveToNext()) {
-            Log.e(LOG_TAG, "Cursor#moveToNext() returned false");
+            Log.i(LOG_TAG, "Cursor#moveToNext() returned false");
         }
         return vcard;
     }
