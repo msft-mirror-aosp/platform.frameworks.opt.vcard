@@ -674,7 +674,7 @@ public class VCardImporterTests extends VCardTestsBase {
                 .put(Phone.TYPE, Phone.TYPE_HOME)
                 .put(Phone.NUMBER, "404-555-1212");
         elem.addExpected(Phone.CONTENT_ITEM_TYPE)
-                .put(Phone.TYPE, Phone.TYPE_FAX_HOME)
+                .put(Phone.TYPE, Phone.TYPE_OTHER_FAX)
                 .put(Phone.NUMBER, "4045551212,*#55");
         elem.addExpected(Phone.CONTENT_ITEM_TYPE)
                 .put(Phone.TYPE, Phone.TYPE_MOBILE)
@@ -1379,7 +1379,7 @@ public class VCardImporterTests extends VCardTestsBase {
                 .put(StructuredName.DISPLAY_NAME, "Pause Wait");
         // See PhoneNumberUtils in Android SDK.
         elem.addExpected(Phone.CONTENT_ITEM_TYPE)
-                .put(Phone.TYPE, Phone.TYPE_HOME)
+                .put(Phone.TYPE, Phone.TYPE_OTHER)
                 .put(Phone.NUMBER, ",1234,5678;9");
     }
 
