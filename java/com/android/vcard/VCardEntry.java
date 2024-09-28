@@ -1752,7 +1752,15 @@ public class VCardEntry {
     }
 
     private final int mVCardType;
-    private final Account mAccount;
+    private Account mAccount;
+
+    public Account getAccount() {
+        return mAccount;
+    }
+
+    public void setAccount(Account account) {
+        mAccount = account;
+    }
 
     private List<VCardEntry> mChildren;
 
