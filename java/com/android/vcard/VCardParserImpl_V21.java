@@ -305,7 +305,13 @@ import java.util.Set;
         mCurrentEncoding = DEFAULT_ENCODING;
 
         final String line = getNonEmptyLine();
-        final VCardProperty propertyData = constructPropertyData(line);
+        final VCardProperty propertyData;
+        try {
+            propertyData = constructPropertyData(line);
+        } catch (VCardInvalidLineException e) {
+            Log.w(LOG_TAG, "VCardInvalidLineException: ignoring", e);
+            return false;
+        }
 
         final String propertyNameUpper = propertyData.getName().toUpperCase();
         final String propertyRawValue = propertyData.getRawValue();
@@ -341,7 +347,7 @@ import java.util.Set;
             }
             handlePropertyValue(property, propertyNameUpper);
         } else {
-            throw new VCardException("Unknown property name: \"" + propertyNameUpper + "\"");
+            Log.w(LOG_TAG, "Unknown property name: \"" + propertyNameUpper + "\", ignoring");
         }
     }
 
