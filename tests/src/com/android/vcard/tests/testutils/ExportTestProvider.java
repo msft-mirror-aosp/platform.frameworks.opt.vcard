@@ -42,14 +42,17 @@ public class ExportTestProvider extends MockContentProvider {
         private final List<Entity> mEntityList;
         private Iterator<Entity> mIterator;
 
-        public MockEntityIterator(List<ContentValues> contentValuesList) {
+        public MockEntityIterator() {
             mEntityList = new ArrayList<Entity>();
+            mIterator = mEntityList.iterator();
+        }
+
+        public void add(List<ContentValues> contentValuesList) {
             Entity entity = new Entity(new ContentValues());
             for (ContentValues contentValues : contentValuesList) {
-                    entity.addSubValue(Data.CONTENT_URI, contentValues);
+                entity.addSubValue(Data.CONTENT_URI, contentValues);
             }
             mEntityList.add(entity);
-            mIterator = mEntityList.iterator();
         }
 
         @Override
@@ -101,13 +104,16 @@ public class ExportTestProvider extends MockContentProvider {
         TestCase.assertTrue(ContentResolver.SCHEME_CONTENT.equals(uri.getScheme()));
         final String authority = uri.getAuthority();
         TestCase.assertTrue(RawContacts.CONTENT_URI.getAuthority().equals(authority));
-        TestCase.assertTrue((Data.CONTACT_ID + "=?").equals(selection));
-        TestCase.assertEquals(1, selectionArgs.length);
-        final int id = Integer.parseInt(selectionArgs[0]);
-        TestCase.assertTrue(id >= 0);
-        TestCase.assertTrue(id < mContactEntryList.size());
+        TestCase.assertTrue(selection != null);
+        TestCase.assertTrue((selection.contains(Data.CONTACT_ID + " IN ")));
+        TestCase.assertNull(selectionArgs);
 
-        return new MockEntityIterator(mContactEntryList.get(id).getList());
+        MockEntityIterator iterator = new MockEntityIterator();
+        for (ContactEntry contactEntry : mContactEntryList) {
+            iterator.add(contactEntry.getList());
+        }
+        iterator.reset();
+        return iterator;
     }
 
     @Override
@@ -135,7 +141,7 @@ public class ExportTestProvider extends MockContentProvider {
 
             @Override
             public boolean moveToNext() {
-                if (mCurrentPosition < mContactEntryList.size()) {
+                if (mCurrentPosition < mContactEntryList.size() - 1) {
                     mCurrentPosition++;
                     return true;
                 } else {
@@ -146,6 +152,11 @@ public class ExportTestProvider extends MockContentProvider {
             @Override
             public boolean isBeforeFirst() {
                 return mCurrentPosition < 0;
+            }
+
+            @Override
+            public boolean isLast() {
+                return mCurrentPosition == mContactEntryList.size() - 1;
             }
 
             @Override
