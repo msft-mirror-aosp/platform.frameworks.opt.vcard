@@ -348,21 +348,20 @@ public class VCardVerifier {
         final VCardComposer composer = new VCardComposer(context, mVCardType, mCharset);
         // projection is ignored.
         final Cursor cursor = resolver.query(CONTACTS_TEST_CONTENT_URI, null, null, null, null);
-        Method mockGetEntityIteratorMethod = null;
-        try {
-            mockGetEntityIteratorMethod = getMockGetEntityIteratorMethod();
-        } catch (Exception e) {
-            AndroidTestCase.fail("Exception thrown: " + e);
-        }
-        AndroidTestCase.assertNotNull(mockGetEntityIteratorMethod);
-        composer.setGetEntityIteratorMethod(mockGetEntityIteratorMethod);
         if (!composer.init(cursor)) {
             AndroidTestCase.fail("init() failed. Reason: " + composer.getErrorReason());
         }
         AndroidTestCase.assertFalse(composer.isAfterLast());
         try {
             while (!composer.isAfterLast()) {
-                final String vcard = composer.createOneEntry();
+                Method mockGetEntityIteratorMethod = null;
+                try {
+                    mockGetEntityIteratorMethod = getMockGetEntityIteratorMethod();
+                } catch (Exception e) {
+                    AndroidTestCase.fail("Exception thrown: " + e);
+                }
+                AndroidTestCase.assertNotNull(mockGetEntityIteratorMethod);
+                final String vcard = composer.createOneEntry(mockGetEntityIteratorMethod);
                 AndroidTestCase.assertNotNull(vcard);
                 if (mLineVerifier != null) {
                     mLineVerifier.verify(vcard);
@@ -380,6 +379,11 @@ public class VCardVerifier {
         final VCardComposer composer = new VCardComposer(context, mVCardType, mCharset);
         // projection is ignored.
         final Cursor cursor = resolver.query(CONTACTS_TEST_CONTENT_URI, null, null, null, null);
+        if (!composer.init(cursor)) {
+            AndroidTestCase.fail("init() failed. Reason: " + composer.getErrorReason());
+        }
+        AndroidTestCase.assertFalse(composer.isAfterLast());
+
         Method mockGetEntityIteratorMethod = null;
         try {
             mockGetEntityIteratorMethod = getMockGetEntityIteratorMethod();
@@ -387,12 +391,7 @@ public class VCardVerifier {
             AndroidTestCase.fail("Exception thrown: " + e);
         }
         AndroidTestCase.assertNotNull(mockGetEntityIteratorMethod);
-        composer.setGetEntityIteratorMethod(mockGetEntityIteratorMethod);
-        if (!composer.init(cursor)) {
-            AndroidTestCase.fail("init() failed. Reason: " + composer.getErrorReason());
-        }
-        AndroidTestCase.assertFalse(composer.isAfterLast());
-        final String vcard = composer.createOneEntry();
+        final String vcard = composer.createOneEntry(mockGetEntityIteratorMethod);
         AndroidTestCase.assertNotNull(vcard);
         composer.terminate();
         return vcard;
