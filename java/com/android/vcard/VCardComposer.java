@@ -146,6 +146,7 @@ public class VCardComposer {
     private Uri mContentUriForRawContactsEntity;
 
     private final String mCharset;
+    private final PhotoOptions mPhotoOptions;
 
     private boolean mInitDone;
     private String mErrorReason = NO_ERROR;
@@ -205,6 +206,24 @@ public class VCardComposer {
      */
     public VCardComposer(final Context context, ContentResolver resolver,
             final int vcardType, String charset, final boolean careHandlerErrors) {
+        this(context, resolver, vcardType, charset, careHandlerErrors, null);
+
+    }
+
+    /**
+     * Constructs for supporting call log entry vCard composing.
+     *
+     * @param context Context to be used during the composition.
+     * @param resolver ContextResolver to query the contacts.
+     * @param vcardType The type of vCard, typically available via {@link VCardConfig}.
+     * @param charset The charset to be used. Use null when you don't need the charset.
+     * @param careHandlerErrors If true, This object returns false everytime
+     * @param photoOptions If not null, then high resolution photo will be used instead of default
+     *                     image (thumbnail) with the given options.
+     */
+    public VCardComposer(final Context context, ContentResolver resolver,
+            final int vcardType, String charset, final boolean careHandlerErrors,
+            final PhotoOptions photoOptions) {
         // Not used right now
         // mContext = context;
         mVCardType = vcardType;
@@ -238,6 +257,9 @@ public class VCardComposer {
         }
 
         Log.d(LOG_TAG, "Use the charset \"" + mCharset + "\"");
+
+        mPhotoOptions = photoOptions;
+        Log.d(LOG_TAG, "Using photo options." + mPhotoOptions);
     }
 
     /**
@@ -538,6 +560,27 @@ public class VCardComposer {
     }
 
     /**
+     * Class that store photo options for using high resolution photos instead of thumbnail.
+     * The image will be resized if bigger than the limit, and compressed to JPEG with the given
+     * file size limit.
+     */
+    public static class PhotoOptions {
+        public final int dimensionLimitInPixel;
+        public final int jpegFileSizeLimitInBytes;
+
+        public PhotoOptions(int dimensionLimitInPixel, int jpegFileSizeLimitInBytes) {
+            this.dimensionLimitInPixel = dimensionLimitInPixel;
+            this.jpegFileSizeLimitInBytes = jpegFileSizeLimitInBytes;
+        }
+
+        @Override
+        public String toString() {
+            return "PhotoOptions[dimensionLimitInPixel=" + dimensionLimitInPixel
+                    + ", jpegFileSizeLimitInBytes=" + jpegFileSizeLimitInBytes + "]";
+        }
+    }
+
+    /**
      *  Class that store rawContactEntitlesUri and contactId
      */
     public static class RawContactEntitlesInfo {
@@ -640,7 +683,14 @@ public class VCardComposer {
                 builder.appendWebsites(contentValuesListMap.get(Website.CONTENT_ITEM_TYPE));
             }
             if ((mVCardType & VCardConfig.FLAG_REFRAIN_IMAGE_EXPORT) == 0) {
-                builder.appendPhotos(contentValuesListMap.get(Photo.CONTENT_ITEM_TYPE));
+                if (mPhotoOptions == null) {
+                    builder.appendPhotos(contentValuesListMap.get(Photo.CONTENT_ITEM_TYPE));
+                } else {
+                    builder.appendHighResPhoto(
+                            mContentResolver,
+                            contentValuesListMap.get(Photo.CONTENT_ITEM_TYPE),
+                            mPhotoOptions);
+                }
             }
             if ((mVCardType & VCardConfig.FLAG_REFRAIN_NOTES_EXPORT) == 0) {
                 builder.appendNotes(contentValuesListMap.get(Note.CONTENT_ITEM_TYPE));

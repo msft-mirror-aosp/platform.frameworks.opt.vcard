@@ -15,7 +15,12 @@
  */
 package com.android.vcard;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.provider.ContactsContract.CommonDataKinds.Im;
@@ -45,7 +50,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 /**
  * <p>
  * The class which lets users create their own vCard String. Typical usage is as follows:
@@ -1314,6 +1318,67 @@ public class VCardBuilder {
                     appendPhotoLine(photoString, photoType);
                 }
             }
+        }
+        return this;
+    }
+
+    /**
+     * Append a high resolution photo using given {@code photoOptions}.
+     * <p>
+     * If it fails, falls back to append thumbnail photos by calling {@link #appendPhotos}.
+     */
+    public VCardBuilder appendHighResPhoto(final ContentResolver cr,
+            final List<ContentValues> contentValuesList, VCardComposer.PhotoOptions photoOptions) {
+        if (contentValuesList == null) {
+            return this;
+        }
+
+        boolean highResPhotoAdded = false;
+        for (ContentValues contentValues : contentValuesList) {
+            if (contentValues == null) {
+                continue;
+            }
+
+            Long photoId = contentValues.getAsLong(Photo.PHOTO_FILE_ID);
+            if (photoId == null) {
+                continue;
+            }
+
+            Uri displayPhotoUri = ContentUris.withAppendedId(
+                    ContactsContract.DisplayPhoto.CONTENT_URI, photoId);
+            Bitmap originalPhoto = PhotoUtils.getBitmapFromAsset(cr, displayPhotoUri);
+
+            if (originalPhoto == null) {
+                continue;
+            }
+
+            int width = originalPhoto.getWidth();
+            int height = originalPhoto.getHeight();
+            Log.d(LOG_TAG, "contact image dimension: " + width + "x" + height
+                    + ", size: " + originalPhoto.getByteCount() / 1024 + " KB");
+
+            Bitmap resizedPhoto = PhotoUtils.resizeBitmapIfNeeded(
+                    originalPhoto, photoOptions.dimensionLimitInPixel);
+
+            byte[] compressedData = PhotoUtils.compressBitmap(
+                    resizedPhoto, photoOptions.jpegFileSizeLimitInBytes);
+
+            if (compressedData == null || compressedData.length == 0) {
+                Log.e(LOG_TAG, "Could not get compressed image data. Ignoring.");
+                continue;
+            }
+
+            final String encodedData = new String(Base64.encode(compressedData, Base64.NO_WRAP));
+            if (!TextUtils.isEmpty(encodedData)) {
+                appendPhotoLine(encodedData, "JPEG");
+                highResPhotoAdded = true;
+                break;
+            }
+        }
+
+        if (!highResPhotoAdded) {
+            Log.w(LOG_TAG, "Could not append high-res photo. Falling back to thumbnail.");
+            return appendPhotos(contentValuesList);
         }
         return this;
     }

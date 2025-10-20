@@ -19,8 +19,8 @@ package {
 java_library {
     name: "com.android.vcard",
 
-    // 2.3
-    sdk_version: "9",
+    // 4.0
+    sdk_version: "14",
 
     srcs: ["java/**/*.java"],
     apex_available: [
